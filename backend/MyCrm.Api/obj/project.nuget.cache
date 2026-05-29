@@ -1,0 +1,65 @@
+{
+  "version": 2,
+  "dgSpecHash": "Ch7RAfR8l7A=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\user\\Desktop\\CRM-project\\backend\\MyCrm.Api\\MyCrm.Api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\user\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.build.framework\\17.8.3\\microsoft.build.framework.17.8.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.build.locator\\1.7.8\\microsoft.build.locator.1.7.8.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.3.4\\microsoft.codeanalysis.analyzers.3.3.4.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.codeanalysis.common\\4.8.0\\microsoft.codeanalysis.common.4.8.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.codeanalysis.csharp\\4.8.0\\microsoft.codeanalysis.csharp.4.8.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.codeanalysis.csharp.workspaces\\4.8.0\\microsoft.codeanalysis.csharp.workspaces.4.8.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.codeanalysis.workspaces.common\\4.8.0\\microsoft.codeanalysis.workspaces.common.4.8.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.codeanalysis.workspaces.msbuild\\4.8.0\\microsoft.codeanalysis.workspaces.msbuild.4.8.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore\\10.0.0-preview.2.25163.8\\microsoft.entityframeworkcore.10.0.0-preview.2.25163.8.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\10.0.0-preview.2.25163.8\\microsoft.entityframeworkcore.abstractions.10.0.0-preview.2.25163.8.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore.design\\10.0.0-preview.2.25163.8\\microsoft.entityframeworkcore.design.10.0.0-preview.2.25163.8.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\10.0.0-preview.2.25163.8\\microsoft.entityframeworkcore.relational.10.0.0-preview.2.25163.8.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.extensions.dependencymodel\\10.0.0-preview.2.25163.2\\microsoft.extensions.dependencymodel.10.0.0-preview.2.25163.2.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\mono.texttemplating\\3.0.0\\mono.texttemplating.3.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\npgsql\\9.0.3\\npgsql.9.0.3.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\10.0.0-preview.2\\npgsql.entityframeworkcore.postgresql.10.0.0-preview.2.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\swashbuckle.aspnetcore\\6.5.0\\swashbuckle.aspnetcore.6.5.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.5.0\\swashbuckle.aspnetcore.swagger.6.5.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.5.0\\swashbuckle.aspnetcore.swaggergen.6.5.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.5.0\\swashbuckle.aspnetcore.swaggerui.6.5.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\system.codedom\\6.0.0\\system.codedom.6.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\system.composition\\7.0.0\\system.composition.7.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\system.composition.attributedmodel\\7.0.0\\system.composition.attributedmodel.7.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\system.composition.convention\\7.0.0\\system.composition.convention.7.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\system.composition.hosting\\7.0.0\\system.composition.hosting.7.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\system.composition.runtime\\7.0.0\\system.composition.runtime.7.0.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\system.composition.typedparts\\7.0.0\\system.composition.typedparts.7.0.0.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1603",
+      "level": "Warning",
+      "message": "MyCrm.Api зависит от Microsoft.EntityFrameworkCore.Design (>= 10.0.0-preview.1.25120.3), но версия Microsoft.EntityFrameworkCore.Design 10.0.0-preview.1.25120.3 не найдена. Использовалась версия Microsoft.EntityFrameworkCore.Design 10.0.0-preview.2.25163.8.",
+      "projectPath": "C:\\Users\\user\\Desktop\\CRM-project\\backend\\MyCrm.Api\\MyCrm.Api.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\user\\Desktop\\CRM-project\\backend\\MyCrm.Api\\MyCrm.Api.csproj",
+      "libraryId": "Microsoft.EntityFrameworkCore.Design",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1603",
+      "level": "Warning",
+      "message": "MyCrm.Api зависит от Npgsql.EntityFrameworkCore.PostgreSQL (>= 10.0.0-preview.1.25122.1), но версия Npgsql.EntityFrameworkCore.PostgreSQL 10.0.0-preview.1.25122.1 не найдена. Использовалась версия Npgsql.EntityFrameworkCore.PostgreSQL 10.0.0-preview.2.",
+      "projectPath": "C:\\Users\\user\\Desktop\\CRM-project\\backend\\MyCrm.Api\\MyCrm.Api.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\user\\Desktop\\CRM-project\\backend\\MyCrm.Api\\MyCrm.Api.csproj",
+      "libraryId": "Npgsql.EntityFrameworkCore.PostgreSQL",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+}

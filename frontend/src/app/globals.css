@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0b1326;
+  --foreground: #ffffff;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Sora', sans-serif;
+  overflow-x: hidden;
+}
+
+.glass-panel {
+  @apply bg-white/5 backdrop-blur-xl border border-white/10;
+}
+
+.neon-border-purple {
+  @apply border-velocity-purple shadow-neon-purple;
+}
+
+.neon-border-cyan {
+  @apply border-velocity-cyan shadow-neon-cyan;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20;
+}
