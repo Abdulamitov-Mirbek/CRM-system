@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String    @id @default(uuid()) @db.Uuid
+  name                String?   @db.VarChar(100)
+  email               String    @unique @db.VarChar(255)
+  password            String    @db.VarChar(255)
+  image               String?   @db.VarChar(255)
+  role                String    @default("USER")
+  emailVerified       Boolean   @default(false)
+  verificationCode    String?   @db.VarChar(6)
+  verificationExpires DateTime? @db.Timestamptz(6)
+  createdAt           DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime  @updatedAt @db.Timestamptz(6)
+  contacts            Contact[]
+  deals               Deal[]
+
+  @@map("Users")
+}
+
+model Contact {
+  id        String   @id(map: "PK_Contacts") @default(uuid()) @map("Id") @db.Uuid
+  firstName String   @map("FirstName") @db.VarChar(100)
+  lastName  String   @map("LastName") @db.VarChar(100)
+  email     String   @map("Email") @db.VarChar(255)
+  phone     String?  @map("Phone") @db.VarChar(20)
+  company   String?  @map("Company") @db.VarChar(100)
+  status    String   @default("Lead") @map("Status")
+  createdAt DateTime @default(now()) @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
+  userId    String?  @db.Uuid
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  deals     Deal[]
+
+  @@map("Contacts")
+}
+
+model Deal {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String   @db.VarChar(255)
+  value     Float
+  stage     String   @default("Lead")
+  company   String?  @db.VarChar(100)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contactId String?  @db.Uuid
+  contact   Contact? @relation(fields: [contactId], references: [id])
+
+  @@map("Deals")
+}
+
+model EFMigrationsHistory {
+  MigrationId    String @id(map: "PK___EFMigrationsHistory") @db.VarChar(150)
+  ProductVersion String @db.VarChar(32)
+
+  @@map("__EFMigrationsHistory")
+}

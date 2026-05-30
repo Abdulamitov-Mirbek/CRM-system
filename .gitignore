@@ -4,3 +4,8 @@ node_modules/
 test-*.ps1
 *.log
 *.tmp
+dist/
+build/  
+bin/
+coverage/
+obj/

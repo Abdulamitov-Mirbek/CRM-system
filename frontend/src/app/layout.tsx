@@ -3,6 +3,8 @@ import { Sora } from "next/font/google";
 import "./globals.css";
 import { SideNavBar } from "@/components/SideNavBar";
 import { TopNavBar } from "@/components/TopNavBar";
+import { Providers } from "@/components/Providers";
+import { LayoutWrapper } from "@/components/LayoutWrapper";
 
 const sora = Sora({ 
   subsets: ["latin"],
@@ -22,13 +24,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={sora.variable}>
       <body className="bg-background text-white antialiased selection:bg-velocity-purple/30 font-sora">
-        <SideNavBar />
-        <TopNavBar />
-        <main className="pl-64 pt-20 min-h-screen">
-          <div className="p-8">
+        <Providers>
+          <SideNavBar />
+          <TopNavBar />
+          <LayoutWrapper>
             {children}
-          </div>
-        </main>
+          </LayoutWrapper>
+        </Providers>
       </body>
     </html>
   );

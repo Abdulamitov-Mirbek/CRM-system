@@ -5,16 +5,20 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Users, UserCircle, Kanban, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSession } from 'next-auth/react';
 
 const navItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Contacts', href: '/contacts', icon: Users },
-  { name: 'Profiles', href: '/profiles', icon: UserCircle },
-  { name: 'Pipelines', href: '/pipeline', icon: Kanban },
+  { name: 'Дашборд', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Контакты', href: '/contacts', icon: Users },
+  { name: 'Профили', href: '/profiles', icon: UserCircle },
+  { name: 'Пайплайны', href: '/pipeline', icon: Kanban },
 ];
 
 export const SideNavBar = () => {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  if (!session) return null;
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 glass-panel z-50 flex flex-col">
@@ -54,13 +58,13 @@ export const SideNavBar = () => {
       <div className="p-4 mt-auto">
         <div className="glass-panel p-4 rounded-2xl flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-velocity-purple to-velocity-cyan p-[2px]">
-            <div className="w-full h-full rounded-full bg-background flex items-center justify-center text-xs font-bold">
-              JD
+            <div className="w-full h-full rounded-full bg-background flex items-center justify-center text-xs font-bold uppercase">
+              {session.user?.name ? session.user.name.substring(0, 2) : '??'}
             </div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold">John Doe</span>
-            <span className="text-[10px] text-white/40 uppercase tracking-widest">Executive</span>
+          <div className="flex flex-col overflow-hidden">
+            <span className="text-sm font-semibold truncate">{session.user?.name || 'User'}</span>
+            <span className="text-[10px] text-white/40 uppercase tracking-widest truncate">{session.user?.email}</span>
           </div>
         </div>
       </div>

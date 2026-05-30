@@ -8,6 +8,12 @@ import { cn } from '@/lib/utils';
 import { contactService } from '@/services/api';
 import { Contact, ContactStatus } from '@/types/contact';
 
+const statusNames: Record<string, string> = {
+  [ContactStatus.Lead]: 'Лид',
+  [ContactStatus.Prospect]: 'Перспективный',
+  [ContactStatus.Customer]: 'Клиент',
+};
+
 const statusStyles: Record<ContactStatus, string> = {
   [ContactStatus.Lead]: 'bg-velocity-cyan/10 border-velocity-cyan/20 text-velocity-cyan',
   [ContactStatus.Prospect]: 'bg-velocity-purple/10 border-velocity-purple/20 text-velocity-purple',
@@ -28,7 +34,7 @@ export default function ProfilesPage() {
       try {
         setContacts(await contactService.getAll());
       } catch {
-        setError('Could not load profiles from the CRM API.');
+        setError('Не удалось загрузить профили из базы данных.');
       } finally {
         setIsLoading(false);
       }
@@ -55,15 +61,15 @@ export default function ProfilesPage() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Executive Profiles</h1>
-          <p className="text-white/40 mt-1">Live contact identities from PostgreSQL</p>
+          <h1 className="text-3xl font-bold tracking-tight">Профили контактов</h1>
+          <p className="text-white/40 mt-1">Идентификация личностей из PostgreSQL</p>
         </div>
         <div className="relative w-full md:w-80">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search profiles..."
+            placeholder="Поиск профилей..."
             className="w-full bg-white/5 border border-white/10 rounded-2xl py-2 pl-12 pr-4 text-sm focus:outline-none focus:border-velocity-cyan/50"
           />
         </div>
@@ -77,7 +83,7 @@ export default function ProfilesPage() {
       )}
 
       {isLoading ? (
-        <div className="glass-panel rounded-3xl p-10 text-center text-white/40">Loading executive profiles...</div>
+        <div className="glass-panel rounded-3xl p-10 text-center text-white/40">Загрузка профилей...</div>
       ) : filteredContacts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredContacts.map((contact) => (
@@ -102,13 +108,13 @@ export default function ProfilesPage() {
                   </div>
                   <div className="flex items-center gap-2 min-w-0">
                     <Briefcase size={14} className="shrink-0 text-velocity-purple" />
-                    <span className="truncate">{contact.company || 'Unassigned company'}</span>
+                    <span className="truncate">{contact.company || 'Компания не указана'}</span>
                   </div>
                 </div>
 
                 <div className="mt-6 flex items-center justify-between">
                   <span className={cn('px-3 py-1 rounded-full border text-[10px] font-bold uppercase tracking-widest', statusStyles[contact.status])}>
-                    {contact.status}
+                    {statusNames[contact.status]}
                   </span>
                   <UserCircle size={18} className="text-white/20" />
                 </div>
@@ -118,8 +124,8 @@ export default function ProfilesPage() {
         </div>
       ) : (
         <div className="glass-panel rounded-3xl p-10 text-center">
-          <p className="text-lg font-bold">No profiles found</p>
-          <p className="text-white/40 text-sm mt-2">Create contacts first, then they will appear here.</p>
+          <p className="text-lg font-bold">Профили не найдены</p>
+          <p className="text-white/40 text-sm mt-2">Сначала создайте контакты, и они появятся здесь.</p>
         </div>
       )}
     </div>
