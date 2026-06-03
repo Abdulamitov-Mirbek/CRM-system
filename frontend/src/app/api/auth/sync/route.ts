@@ -5,28 +5,36 @@ export async function POST(req: Request) {
   try {
     const { email, name, emailVerified } = await req.json();
 
-    if (!email) {
+    if (typeof email !== "string" || !email.trim()) {
       return new NextResponse("Missing email", { status: 400 });
     }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const incomingVerified = emailVerified === true;
     
     let user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (!user) {
+      const usersCount = await prisma.user.count();
+      const role = usersCount === 0 ? "OWNER" : "WAITER";
+
       user = await prisma.user.create({
         data: {
-          email,
-          name: name || email.split('@')[0],
+          email: normalizedEmail,
+          name: name || normalizedEmail.split('@')[0],
           password: 'FIREBASE_MANAGED',
-          emailVerified: emailVerified || false,
+          emailVerified: incomingVerified,
+          role,
+          isActive: true,
         },
       });
     } else {
       // Update verification status if it changed
       user = await prisma.user.update({
-        where: { email },
-        data: { emailVerified: emailVerified || false },
+        where: { email: normalizedEmail },
+        data: { emailVerified: user.emailVerified || incomingVerified },
       });
     }
 

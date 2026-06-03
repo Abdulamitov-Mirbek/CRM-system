@@ -10,7 +10,7 @@ module.exports = {
       colors: {
         background: "#0b1326",
         surface: "rgba(255, 255, 255, 0.05)",
-        velocity: {
+        daamda: {
           purple: "#8b5cf6",
           cyan: "#4cd7f6",
         },

@@ -13,7 +13,8 @@ export default function VerifyEmailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
-  const inputRefs = useRef<any[]>([]);
+  const hasEmail = typeof email === 'string' && email.trim().length > 0;
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   // Авто-фокус на первом поле
   useEffect(() => {
@@ -29,19 +30,23 @@ export default function VerifyEmailPage() {
 
     // Переход к следующему полю
     if (value && index < 5) {
-      inputRefs.current[index + 1].focus();
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === 'Backspace' && !code[index] && index > 0) {
-      inputRefs.current[index - 1].focus();
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handleVerify = async (finalCode?: string) => {
     const codeString = finalCode || code.join('');
     if (codeString.length !== 6) return;
+    if (!hasEmail) {
+      setError('Email required');
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -72,16 +77,27 @@ export default function VerifyEmailPage() {
   };
 
   const handleResend = async () => {
+    if (!hasEmail) {
+      setError('Email required');
+      return;
+    }
+
     setSending(true);
     try {
-      await fetch('/api/auth/send-code', {
+      const res = await fetch('/api/auth/send-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || 'Failed to send code');
+      }
+
       alert('Новый код отправлен!');
-    } catch (err) {
-      alert('Ошибка при отправке');
+    } catch (err: any) {
+      alert(err.message || 'Ошибка при отправке');
     } finally {
       setSending(false);
     }
@@ -123,7 +139,9 @@ export default function VerifyEmailPage() {
           {code.map((digit, index) => (
             <input
               key={index}
-              ref={el => inputRefs.current[index] = el}
+              ref={el => {
+                inputRefs.current[index] = el;
+              }}
               type="text"
               maxLength={1}
               value={digit}

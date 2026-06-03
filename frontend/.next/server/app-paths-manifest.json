@@ -1,9 +1,16 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/login/page": "app/login/page.js",
-  "/register/page": "app/register/page.js",
-  "/api/auth/sync/route": "app/api/auth/sync/route.js",
-  "/api/auth/send-code/route": "app/api/auth/send-code/route.js",
-  "/verify-email/page": "app/verify-email/page.js",
-  "/api/auth/verify-code/route": "app/api/auth/verify-code/route.js"
+  "/dashboard/page": "app/dashboard/page.js",
+  "/profiles/page": "app/profiles/page.js",
+  "/reviews/page": "app/reviews/page.js",
+  "/api/analytics/summary/route": "app/api/analytics/summary/route.js",
+  "/profiles/[id]/page": "app/profiles/[id]/page.js",
+  "/reservations/page": "app/reservations/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/analytics/report/route": "app/api/analytics/report/route.js",
+  "/api/contacts/[id]/route": "app/api/contacts/[id]/route.js",
+  "/api/contacts/route": "app/api/contacts/route.js",
+  "/admin/menu/page": "app/admin/menu/page.js",
+  "/employees/page": "app/employees/page.js",
+  "/api/users/route": "app/api/users/route.js"
 }

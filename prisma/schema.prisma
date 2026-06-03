@@ -13,7 +13,10 @@ model User {
   email               String    @unique @db.VarChar(255)
   password            String    @db.VarChar(255)
   image               String?   @db.VarChar(255)
-  role                String    @default("USER")
+  role                String    @default("WAITER") // OWNER, ADMINISTRATOR, MANAGER, WAITER
+  isActive            Boolean   @default(true)
+  branchId            String?   @db.Uuid
+  branch              Branch?   @relation(fields: [branchId], references: [id])
   emailVerified       Boolean   @default(false)
   verificationCode    String?   @db.VarChar(6)
   verificationExpires DateTime? @db.Timestamptz(6)
@@ -21,39 +24,216 @@ model User {
   updatedAt           DateTime  @updatedAt @db.Timestamptz(6)
   contacts            Contact[]
   deals               Deal[]
+  reservations        Reservation[]
+  managedReviews      Review[]
+  userRoles           UserRole[]
 
   @@map("Users")
 }
 
+model Role {
+  id          String           @id @default(uuid()) @db.Uuid
+  name        RoleName         @unique
+  description String?          @db.VarChar(255)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(6)
+  userRoles   UserRole[]
+  permissions RolePermission[]
+
+  @@map("Roles")
+}
+
+model Permission {
+  id          String           @id @default(uuid()) @db.Uuid
+  name        PermissionName   @unique
+  description String?          @db.VarChar(255)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(6)
+  roles       RolePermission[]
+
+  @@map("Permissions")
+}
+
+model UserRole {
+  userId    String   @db.Uuid
+  roleId    String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("UserRoles")
+}
+
+model RolePermission {
+  roleId       String     @db.Uuid
+  permissionId String     @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("RolePermissions")
+}
+
+enum RoleName {
+  OWNER
+  ADMINISTRATOR
+  MANAGER
+  WAITER
+}
+
+enum PermissionName {
+  USERS_READ
+  USERS_INVITE
+  USERS_EDIT
+  USERS_CHANGE_ROLE
+  USERS_CHANGE_STATUS
+}
+
+model Branch {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(100)
+  address   String?  @db.VarChar(255)
+  users     User[]
+  tables    Table[]
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("Branches")
+}
+
 model Contact {
-  id        String   @id(map: "PK_Contacts") @default(uuid()) @map("Id") @db.Uuid
-  firstName String   @map("FirstName") @db.VarChar(100)
-  lastName  String   @map("LastName") @db.VarChar(100)
-  email     String   @map("Email") @db.VarChar(255)
-  phone     String?  @map("Phone") @db.VarChar(20)
-  company   String?  @map("Company") @db.VarChar(100)
-  status    String   @default("Lead") @map("Status")
-  createdAt DateTime @default(now()) @map("CreatedAt") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
-  userId    String?  @db.Uuid
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  deals     Deal[]
+  id             String        @id(map: "PK_Contacts") @default(uuid()) @map("Id") @db.Uuid
+  firstName      String        @map("FirstName") @db.VarChar(100)
+  lastName       String        @map("LastName") @db.VarChar(100)
+  email          String        @map("Email") @db.VarChar(255)
+  phone          String?       @map("Phone") @db.VarChar(20)
+  company        String?       @map("Company") @db.VarChar(100)
+  birthday       DateTime?     @map("Birthday") @db.Date
+  gender         String?       @map("Gender") @db.VarChar(10)
+  address        String?       @map("Address") @db.VarChar(255)
+  status         String        @default("Lead") @map("Status")
+  bonusBalance   Decimal       @default(0) @map("BonusBalance") @db.Decimal(18, 2)
+  loyaltyLevel   String        @default("Bronze") @map("LoyaltyLevel") // Bronze, Silver, Gold, Platinum
+  totalSpent     Decimal       @default(0) @map("TotalSpent") @db.Decimal(18, 2)
+  createdAt      DateTime      @default(now()) @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt      DateTime      @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
+  userId         String?       @db.Uuid
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  deals          Deal[]
+  reservations   Reservation[]
+  reviews        Review[]
 
   @@map("Contacts")
 }
 
+model Reservation {
+  id            String   @id @default(uuid()) @db.Uuid
+  contactId     String   @db.Uuid
+  contact       Contact  @relation(fields: [contactId], references: [id])
+  tableId       String?  @db.Uuid
+  table         Table?   @relation(fields: [tableId], references: [id])
+  userId        String?  @db.Uuid
+  user          User?    @relation(fields: [userId], references: [id])
+  guestCount    Int
+  startTime     DateTime @db.Timestamptz(6)
+  endTime       DateTime @db.Timestamptz(6)
+  status        String   @default("Pending") // Pending, Confirmed, Seated, Cancelled, Completed
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("Reservations")
+}
+
+model Table {
+  id           String        @id @default(uuid()) @db.Uuid
+  number       String        @db.VarChar(10)
+  capacity     Int
+  branchId     String        @db.Uuid
+  branch       Branch        @relation(fields: [branchId], references: [id])
+  reservations Reservation[]
+  createdAt    DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime      @updatedAt @db.Timestamptz(6)
+
+  @@map("Tables")
+}
+
+model Review {
+  id           String   @id @default(uuid()) @db.Uuid
+  contactId    String   @db.Uuid
+  contact      Contact  @relation(fields: [contactId], references: [id])
+  rating       Int      @db.SmallInt
+  comment      String?  @db.Text
+  response     String?  @db.Text
+  responderId  String?  @db.Uuid
+  responder    User?    @relation(fields: [responderId], references: [id])
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("Reviews")
+}
+
+model Category {
+  id        String     @id @default(uuid()) @db.Uuid
+  name      String     @db.VarChar(100)
+  items     MenuItem[]
+  createdAt DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime   @updatedAt @db.Timestamptz(6)
+
+  @@map("Categories")
+}
+
+model MenuItem {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(100)
+  description String?  @db.Text
+  price       Decimal  @db.Decimal(18, 2)
+  categoryId  String   @db.Uuid
+  category    Category @relation(fields: [categoryId], references: [id])
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("MenuItems")
+}
+
+model Pipeline {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(100)
+  stages      Stage[]
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("Pipelines")
+}
+
+model Stage {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String   @db.VarChar(100)
+  order      Int
+  pipelineId String   @db.Uuid
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  deals      Deal[]
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("Stages")
+}
+
 model Deal {
-  id        String   @id @default(uuid()) @db.Uuid
-  title     String   @db.VarChar(255)
-  value     Float
-  stage     String   @default("Lead")
-  company   String?  @db.VarChar(100)
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @db.Timestamptz(6)
-  userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contactId String?  @db.Uuid
-  contact   Contact? @relation(fields: [contactId], references: [id])
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  value       Float
+  stageId     String?  @db.Uuid
+  stage       Stage?   @relation(fields: [stageId], references: [id])
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+  userId      String   @db.Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contactId   String?  @db.Uuid
+  contact     Contact? @relation(fields: [contactId], references: [id])
 
   @@map("Deals")
 }

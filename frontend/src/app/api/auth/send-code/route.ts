@@ -14,7 +14,11 @@ const transporter = nodemailer.createTransport({
 export async function POST(req: Request) {
   try {
     const { email } = await req.json();
-    if (!email) return new NextResponse("Email required", { status: 400 });
+    if (typeof email !== "string" || !email.trim()) {
+      return new NextResponse("Email required", { status: 400 });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
 
     // 1. Генерируем 6-значный код
     const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -22,7 +26,7 @@ export async function POST(req: Request) {
 
     // 2. Сохраняем в базу
     await prisma.user.update({
-      where: { email },
+      where: { email: normalizedEmail },
       data: {
         verificationCode: code,
         verificationExpires: expires,
@@ -33,7 +37,7 @@ export async function POST(req: Request) {
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       await transporter.sendMail({
         from: '"Velocity CRM" <' + process.env.EMAIL_USER + '>',
-        to: email,
+        to: normalizedEmail,
         subject: "Код подтверждения Velocity CRM",
         html: `
           <div style="font-family: sans-serif; padding: 20px; background: #050a18; color: white; border-radius: 20px;">
@@ -50,7 +54,7 @@ export async function POST(req: Request) {
     } else {
       // Если почта не настроена - пишем в консоль разработчика
       console.log("-----------------------------------------");
-      console.log(`КРИТИЧЕСКИЙ СИГНАЛ: Код для ${email} -> ${code}`);
+      console.log(`КРИТИЧЕСКИЙ СИГНАЛ: Код для ${normalizedEmail} -> ${code}`);
       console.log("-----------------------------------------");
       return NextResponse.json({ success: true, method: 'console' });
     }

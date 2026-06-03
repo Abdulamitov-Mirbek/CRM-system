@@ -21,12 +21,16 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email,
+            email: credentials.email.trim().toLowerCase(),
           },
         });
 
         if (!user) {
           throw new Error("Invalid credentials");
+        }
+
+        if (!user.isActive) {
+          throw new Error("Account is blocked");
         }
 
         // If it's a firebase sync, we trust it (it's called from our client after firebase auth)
@@ -36,6 +40,9 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             image: user.image,
+            role: user.role,
+            emailVerified: user.emailVerified,
+            isActive: user.isActive,
           };
         }
 
@@ -57,6 +64,9 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           image: user.image,
+          role: user.role,
+          emailVerified: user.emailVerified,
+          isActive: user.isActive,
         };
       },
     }),
@@ -72,12 +82,31 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         (session.user as any).id = token.sub;
         (session.user as any).emailVerified = token.emailVerified;
+        (session.user as any).role = token.role;
+        (session.user as any).isActive = token.isActive;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.emailVerified = (user as any).emailVerified;
+        token.role = (user as any).role;
+        token.isActive = (user as any).isActive;
+      } else if (token.sub) {
+        const currentUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: {
+            emailVerified: true,
+            role: true,
+            isActive: true,
+          },
+        });
+
+        if (currentUser) {
+          token.emailVerified = currentUser.emailVerified;
+          token.role = currentUser.role;
+          token.isActive = currentUser.isActive;
+        }
       }
       return token;
     }

@@ -13,17 +13,20 @@ export async function GET() {
     const userId = (session.user as any).id;
 
     const contactsCount = await prisma.contact.count({ where: { userId } });
-    const deals = await prisma.deal.findMany({ where: { userId } });
+    const deals = await prisma.deal.findMany({ 
+      where: { userId },
+      include: { stage: true }
+    });
     
     const totalValue = deals.reduce((acc, deal) => acc + deal.value, 0);
-    const winRate = deals.length > 0 ? (deals.filter(d => d.stage === 'Closed').length / deals.length) * 100 : 0;
+    const winRate = deals.length > 0 ? (deals.filter(d => d.stage?.name === 'Closed').length / deals.length) * 100 : 0;
 
     // Group deals by stage for pipeline chart
     const pipeline = [
-      { stage: 'Lead', value: deals.filter(d => d.stage === 'Lead').reduce((acc, d) => acc + d.value, 0) },
-      { stage: 'Discovery', value: deals.filter(d => d.stage === 'Discovery').reduce((acc, d) => acc + d.value, 0) },
-      { stage: 'Proposal', value: deals.filter(d => d.stage === 'Proposal').reduce((acc, d) => acc + d.value, 0) },
-      { stage: 'Closing', value: deals.filter(d => d.stage === 'Closing').reduce((acc, d) => acc + d.value, 0) },
+      { stage: 'Lead', value: deals.filter(d => d.stage?.name === 'Lead').reduce((acc, d) => acc + d.value, 0) },
+      { stage: 'Qualified', value: deals.filter(d => d.stage?.name === 'Qualified').reduce((acc, d) => acc + d.value, 0) },
+      { stage: 'Proposal', value: deals.filter(d => d.stage?.name === 'Proposal').reduce((acc, d) => acc + d.value, 0) },
+      { stage: 'Closed', value: deals.filter(d => d.stage?.name === 'Closed').reduce((acc, d) => acc + d.value, 0) },
     ];
 
     return NextResponse.json({

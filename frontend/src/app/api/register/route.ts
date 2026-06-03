@@ -6,12 +6,14 @@ export async function POST(req: Request) {
   try {
     const { email, name, password } = await req.json();
 
-    if (!email || !password) {
+    if (typeof email !== "string" || !email.trim() || !password) {
       return new NextResponse("Missing email or password", { status: 400 });
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -19,12 +21,16 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const usersCount = await prisma.user.count();
+    const role = usersCount === 0 ? "OWNER" : "WAITER";
 
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         name,
         password: hashedPassword,
+        role,
+        isActive: true,
       },
     });
 

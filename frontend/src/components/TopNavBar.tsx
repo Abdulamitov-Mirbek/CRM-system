@@ -41,7 +41,7 @@ export const TopNavBar = () => {
     <header className="fixed top-0 left-64 right-0 h-20 glass-panel z-40 px-8 flex items-center justify-between">
       <div className="flex-1 max-w-xl">
         <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-velocity-cyan transition-colors" size={18} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-daamda-cyan transition-colors" size={18} />
           <input 
             type="text" 
             placeholder="Поиск контактов, компаний..."
@@ -51,14 +51,14 @@ export const TopNavBar = () => {
               setShowResults(true);
             }}
             onFocus={() => setShowResults(true)}
-            className="w-full bg-white/5 border border-white/10 rounded-2xl py-2.5 pl-12 pr-4 text-sm focus:outline-none focus:border-velocity-cyan/50 focus:bg-white/10 transition-all"
+            className="w-full bg-white/5 border border-white/10 rounded-2xl py-2.5 pl-12 pr-4 text-sm focus:outline-none focus:border-daamda-cyan/50 focus:bg-white/10 transition-all"
           />
           
           {showResults && (query.length >= 2 || loading) && (
             <div className="absolute top-full left-0 right-0 mt-2 glass-panel rounded-2xl overflow-hidden shadow-2xl border border-white/10 z-50">
               {loading ? (
                 <div className="p-4 flex justify-center">
-                  <Loader2 className="animate-spin text-velocity-cyan" size={20} />
+                  <Loader2 className="animate-spin text-daamda-cyan" size={20} />
                 </div>
               ) : results.length > 0 ? (
                 <div className="py-2">
@@ -69,7 +69,7 @@ export const TopNavBar = () => {
                       onClick={() => setShowResults(false)}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
                     >
-                      <div className="w-8 h-8 rounded-full bg-velocity-purple/20 flex items-center justify-center text-xs font-bold text-velocity-purple">
+                      <div className="w-8 h-8 rounded-full bg-daamda-purple/20 flex items-center justify-center text-xs font-bold text-daamda-purple">
                         {contact.firstName[0]}{contact.lastName[0]}
                       </div>
                       <div className="flex flex-col">
@@ -88,7 +88,7 @@ export const TopNavBar = () => {
       </div>
 
       <div className="flex items-center gap-6">
-        <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-velocity-purple/10 text-velocity-purple text-sm font-semibold hover:bg-velocity-purple/20 transition-all border border-velocity-purple/20">
+        <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-daamda-purple/10 text-daamda-purple text-sm font-semibold hover:bg-daamda-purple/20 transition-all border border-daamda-purple/20">
           <RefreshCw size={16} />
           <span>Синхронизация</span>
         </button>

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { auth, googleProvider } from '@/lib/firebase';
-import { signInWithEmailAndPassword, signInWithPopup, sendEmailVerification } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { signIn } from 'next-auth/react';
 import { Mail, Lock, Globe, Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
 
@@ -35,7 +35,19 @@ export default function LoginPage() {
 
     // If not verified, redirect to verification page
     if (!firebaseUser.emailVerified) {
-      router.push('/verify-email');
+      const userEmail = firebaseUser.email;
+
+      if (!userEmail) {
+        throw new Error('Firebase user email is missing');
+      }
+
+      await fetch('/api/auth/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail }),
+      });
+
+      router.push(`/verify-email?email=${encodeURIComponent(userEmail)}`);
       return;
     }
 
@@ -65,6 +77,17 @@ export default function LoginPage() {
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/invalid-credential') {
+        const res = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        });
+
+        if (!res?.error) {
+          router.push('/dashboard');
+          router.refresh();
+          return;
+        }
         setError('Неверный email или пароль');
       } else {
         setError('Ошибка при входе');
@@ -126,7 +149,7 @@ export default function LoginPage() {
           <div>
             <div className="flex justify-between mb-2">
               <label className="text-sm font-medium text-white/60">Пароль</label>
-              <Link href="/forgot-password" size="sm" className="text-xs text-velocity-cyan hover:underline">
+              <Link href="/forgot-password" className="text-xs text-velocity-cyan hover:underline">
                 Забыли пароль?
               </Link>
             </div>

@@ -15,6 +15,7 @@ export async function GET() {
     },
     include: {
       contact: true,
+      stage: true,
     },
     orderBy: {
       createdAt: 'desc',
@@ -37,6 +38,10 @@ export async function POST(req: Request) {
         ...data,
         userId: (session.user as any).id,
       },
+      include: {
+        contact: true,
+        stage: true,
+      }
     });
 
     return NextResponse.json(deal);

@@ -21,11 +21,11 @@ body {
 }
 
 .neon-border-purple {
-  @apply border-velocity-purple shadow-neon-purple;
+  @apply border-daamda-purple shadow-neon-purple;
 }
 
 .neon-border-cyan {
-  @apply border-velocity-cyan shadow-neon-cyan;
+  @apply border-daamda-cyan shadow-neon-cyan;
 }
 
 /* Custom scrollbar */

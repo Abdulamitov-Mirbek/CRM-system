@@ -6,5 +6,6 @@ export const config = {
     "/contacts/:path*",
     "/pipeline/:path*",
     "/profiles/:path*",
+    "/employees/:path*",
   ],
 };

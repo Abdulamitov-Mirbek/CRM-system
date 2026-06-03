@@ -25,6 +25,9 @@ const emptyForm: CreateContactDto = {
   email: '',
   phone: '',
   company: '',
+  birthday: '',
+  gender: '',
+  address: '',
   status: ContactStatus.Lead,
 };
 
@@ -69,9 +72,14 @@ const ContactCard = ({ contact }: { contact: Contact }) => {
           </div>
           <div className={cn('absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-4 border-background', statusStyles[contact.status])} />
         </div>
-        <button className="p-2 text-white/20 hover:text-white transition-colors">
-          <MoreVertical size={20} />
-        </button>
+        <div className="text-right">
+          <div className="px-3 py-1 rounded-lg bg-velocity-purple/10 border border-velocity-purple/20 text-[10px] font-bold uppercase tracking-widest text-velocity-purple mb-1">
+            {contact.loyaltyLevel}
+          </div>
+          <div className="text-xs font-bold text-emerald-400">
+            {contact.bonusBalance} бонусов
+          </div>
+        </div>
       </div>
 
       <h3 className="text-lg font-bold mb-1 group-hover:text-velocity-cyan transition-colors">{name}</h3>
@@ -238,6 +246,14 @@ export default function ContactsPage() {
             <input name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="Email" className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-velocity-cyan/50" />
             <input name="phone" value={formData.phone} onChange={handleChange} placeholder="Телефон" className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-velocity-cyan/50" />
             <input name="company" value={formData.company} onChange={handleChange} placeholder="Компания" className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-velocity-cyan/50" />
+            <input name="birthday" type="date" value={formData.birthday || ''} onChange={handleChange} className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-velocity-cyan/50" />
+            <select name="gender" value={formData.gender || ''} onChange={handleChange} className="bg-[#111827] border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-velocity-cyan/50">
+              <option value="">Пол</option>
+              <option value="Male">Мужской</option>
+              <option value="Female">Женский</option>
+              <option value="Other">Другой</option>
+            </select>
+            <input name="address" value={formData.address || ''} onChange={handleChange} placeholder="Адрес" className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-velocity-cyan/50" />
             <select name="status" value={formData.status} onChange={handleChange} className="bg-[#111827] border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-velocity-cyan/50">
               <option value={ContactStatus.Lead}>Лид</option>
               <option value={ContactStatus.Prospect}>Перспективный</option>
