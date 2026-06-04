@@ -12,8 +12,8 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "VELOCITY CRM | Cyber-Luxe Operations",
-  description: "Next-gen CRM for high-velocity teams",
+  title: "DAAMDA CRM",
+  description: "CRM система автоматизации DAAMDA",
 };
 
 export default function RootLayout({
@@ -22,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={sora.variable}>
-      <body className="bg-background text-white antialiased selection:bg-velocity-purple/30 font-sora">
+    <html lang="ru" className={sora.variable} suppressHydrationWarning>
+      <body className="bg-background text-white antialiased selection:bg-crm-primary/30 font-sora" suppressHydrationWarning>
         <Providers>
           <SideNavBar />
           <TopNavBar />

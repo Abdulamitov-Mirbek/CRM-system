@@ -15,6 +15,11 @@ public class Table
     public int Capacity { get; set; }
 
     [Required]
+    [MaxLength(20)]
+    public string Status { get; set; } = "Available";
+    // Available, Occupied, Reserved, Maintenance
+
+    [Required]
     public Guid BranchId { get; set; }
     public Branch Branch { get; set; } = null!;
 

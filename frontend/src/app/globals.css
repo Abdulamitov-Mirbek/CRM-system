@@ -5,8 +5,10 @@
 @tailwind utilities;
 
 :root {
-  --background: #0b1326;
+  --background: #0f172a;
   --foreground: #ffffff;
+  --surface: rgba(15, 23, 42, 0.8);
+  --border: rgba(255, 255, 255, 0.08);
 }
 
 body {
@@ -14,12 +16,164 @@ body {
   background: var(--background);
   font-family: 'Sora', sans-serif;
   overflow-x: hidden;
+  @apply transition-colors duration-300;
 }
 
+/* Glass Panel Component */
 .glass-panel {
-  @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  @apply bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-2xl;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.glass-panel:hover {
+  @apply bg-white/[0.04] border-white/10 shadow-card-hover;
+}
+
+.glass-panel-elevated {
+  @apply glass-panel shadow-card bg-white/[0.05];
+}
+
+/* CRM Cards */
+.crm-card {
+  @apply glass-panel p-6 rounded-2xl relative overflow-hidden;
+}
+
+.crm-card:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.crm-card:hover:before {
+  opacity: 1;
+}
+
+/* Gradient Text */
+.gradient-text-crm {
+  @apply bg-gradient-crm bg-clip-text text-transparent;
+}
+
+/* Badge Styles */
+.badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap;
+}
+
+.badge-primary {
+  @apply bg-crm-primary/10 text-crm-primary border border-crm-primary/20;
+}
+
+.badge-success {
+  @apply bg-crm-success/10 text-crm-success border border-crm-success/20;
+}
+
+.badge-warning {
+  @apply bg-crm-warning/10 text-crm-warning border border-crm-warning/20;
+}
+
+.badge-danger {
+  @apply bg-crm-danger/10 text-crm-danger border border-crm-danger/20;
+}
+
+/* Button Styles */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-primary {
+  @apply bg-crm-primary text-white hover:bg-blue-600 shadow-md hover:shadow-lg;
+}
+
+.btn-secondary {
+  @apply bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20;
+}
+
+.btn-ghost {
+  @apply text-white/60 hover:text-white hover:bg-white/5;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+}
+
+::-webkit-scrollbar-corner {
+  @apply bg-transparent;
+}
+
+/* Input Styles */
+input:where(.input, [type='text'], [type='email'], [type='password'], [type='number'], [type='search']) {
+  @apply bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-sm text-white placeholder:text-white/40 transition-all duration-300;
+}
+
+input:where(.input, [type='text'], [type='email'], [type='password'], [type='number'], [type='search']):focus {
+  @apply outline-none border-crm-primary/50 bg-white/10 shadow-md;
+}
+
+textarea {
+  @apply bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-sm text-white placeholder:text-white/40 transition-all duration-300 focus:outline-none focus:border-crm-primary/50 focus:bg-white/10;
+}
+
+/* Selection */
+::selection {
+  @apply bg-crm-primary/30 text-white;
+}
+
+/* Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+  }
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Neon Effects */
 .neon-border-purple {
   @apply border-daamda-purple shadow-neon-purple;
 }
@@ -28,15 +182,27 @@ body {
   @apply border-daamda-cyan shadow-neon-cyan;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+.neon-border-primary {
+  @apply border-crm-primary shadow-[0_0_20px_rgba(59,130,246,0.3)];
 }
 
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
+/* Utility Classes */
+.text-muted {
+  @apply text-white/40;
 }
 
-::-webkit-scrollbar-thumb {
-  @apply bg-white/10 rounded-full hover:bg-white/20;
+.text-muted-subtle {
+  @apply text-white/20;
+}
+
+.text-bright {
+  @apply text-white;
+}
+
+.bg-subtle {
+  @apply bg-white/[0.02];
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
 }

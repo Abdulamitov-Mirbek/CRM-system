@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using MyCrm.Api.Authorization;
 using MyCrm.Api.Data;
+using System.Text;
 using System.Text.Json.Serialization;
 
-// Load environment variables from .env file
-try 
+try
 {
     DotNetEnv.Env.TraversePath().Load();
     Console.WriteLine(".env loaded successfully");
@@ -17,7 +19,6 @@ catch (Exception ex)
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -26,18 +27,51 @@ builder.Services.AddControllers()
 
 builder.Services.AddScoped<MyCrm.Api.Services.ILoyaltyService, MyCrm.Api.Services.LoyaltyService>();
 
-// Configure PostgreSQL
-var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+// Support both InternalApi (NextAuth forwarding) and JWT (direct login)
 builder.Services
-    .AddAuthentication(InternalApiAuthenticationHandler.SchemeName)
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme = "MultiScheme";
+    })
+    .AddPolicyScheme("MultiScheme", "MultiScheme", options =>
+    {
+        options.ForwardDefaultSelector = ctx =>
+        {
+            var auth = ctx.Request.Headers.Authorization.ToString();
+            if (auth.StartsWith("Bearer ") && auth.Length > 50)
+            {
+                // Long Bearer token = JWT
+                var token = auth["Bearer ".Length..].Trim();
+                return token.Count(c => c == '.') == 2
+                    ? JwtBearerDefaults.AuthenticationScheme
+                    : InternalApiAuthenticationHandler.SchemeName;
+            }
+            return InternalApiAuthenticationHandler.SchemeName;
+        };
+    })
     .AddScheme<AuthenticationSchemeOptions, InternalApiAuthenticationHandler>(
         InternalApiAuthenticationHandler.SchemeName,
-        options => { });
+        options => { })
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+    {
+        var secret = Environment.GetEnvironmentVariable("JWT_SECRET")
+            ?? builder.Configuration["Jwt:Secret"]
+            ?? "DAAMDA_CRM_SECRET_KEY_CHANGE_IN_PRODUCTION_32CH";
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
 builder.Services.AddAuthorization(options =>
 {
@@ -54,24 +88,48 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("OWNER", "ADMINISTRATOR", "ADMIN", "MANAGER", "WAITER"));
 });
 
-// Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins(
+                "http://localhost:3000",
+                "http://localhost:3001")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
-// Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter JWT token"
+    });
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -79,12 +137,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

@@ -7,9 +7,16 @@ public class Reservation
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    [Required]
-    public Guid ContactId { get; set; }
-    public Contact Contact { get; set; } = null!;
+    // Nullable — client bookings don't require a Contact record
+    public Guid? ContactId { get; set; }
+    public Contact? Contact { get; set; }
+
+    // Direct client info for walk-in / online bookings
+    [MaxLength(100)]
+    public string? CustomerName { get; set; }
+
+    [MaxLength(20)]
+    public string? Phone { get; set; }
 
     public Guid? TableId { get; set; }
     public Table? Table { get; set; }
@@ -28,7 +35,8 @@ public class Reservation
 
     [Required]
     [MaxLength(20)]
-    public string Status { get; set; } = "Pending"; // Pending, Confirmed, Seated, Cancelled, Completed
+    public string Status { get; set; } = "New";
+    // New, Confirmed, Completed, Cancelled
 
     public string? Notes { get; set; }
 

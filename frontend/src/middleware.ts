@@ -7,5 +7,7 @@ export const config = {
     "/pipeline/:path*",
     "/profiles/:path*",
     "/employees/:path*",
+    "/orders/:path*",
+    "/reservations/:path*",
   ],
 };
