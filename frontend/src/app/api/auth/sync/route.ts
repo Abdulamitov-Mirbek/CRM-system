@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
@@ -22,25 +23,32 @@ export async function POST(req: Request) {
 
       user = await prisma.user.create({
         data: {
+          id: crypto.randomUUID(),
           email: normalizedEmail,
           name: name || normalizedEmail.split('@')[0],
           password: 'FIREBASE_MANAGED',
           emailVerified: incomingVerified,
           role,
           isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       });
     } else {
       // Update verification status if it changed
       user = await prisma.user.update({
         where: { email: normalizedEmail },
-        data: { emailVerified: user.emailVerified || incomingVerified },
+        data: { 
+          emailVerified: user.emailVerified || incomingVerified,
+          updatedAt: new Date(),
+        },
       });
     }
 
     return NextResponse.json(user);
   } catch (error: any) {
     console.error("SYNC ERROR:", error);
-    return new NextResponse(error.message, { status: 500 });
+    // Return detailed error message for debugging
+    return new NextResponse(error.message || "Internal Server Error", { status: 500 });
   }
 }

@@ -33,6 +33,11 @@ public class User
 
     public bool EmailVerified { get; set; } = false;
 
+    [MaxLength(10)]
+    public string? VerificationCode { get; set; }
+
+    public DateTime? VerificationExpires { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

@@ -1,9 +1,6 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/profiles/page": "app/profiles/page.js",
-  "/profiles/[id]/page": "app/profiles/[id]/page.js",
-  "/employees/page": "app/employees/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/book/page": "app/book/page.js"
+  "/register/page": "app/register/page.js",
+  "/api/auth/request-password-reset/route": "app/api/auth/request-password-reset/route.js",
+  "/forgot-password/page": "app/forgot-password/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js"
 }

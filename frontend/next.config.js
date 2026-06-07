@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  async rewrites() {
+    return {
+      fallback: [
+        {
+          source: '/api/:path*',
+          destination: 'http://localhost:5287/api/:path*',
+        },
+      ],
+    };
+  },
 };
 
 module.exports = nextConfig;

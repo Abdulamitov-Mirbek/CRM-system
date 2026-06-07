@@ -10,7 +10,7 @@ using MyCrm.Api.Models;
 namespace MyCrm.Api.Controllers;
 
 [ApiController]
-[Route("users")]
+[Route("api/users")]
 public class UsersController : ControllerBase
 {
     private static readonly HashSet<string> AllowedRoles = new(StringComparer.OrdinalIgnoreCase)

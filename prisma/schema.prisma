@@ -8,234 +8,264 @@ datasource db {
 }
 
 model User {
-  id                  String    @id @default(uuid()) @db.Uuid
-  name                String?   @db.VarChar(100)
-  email               String    @unique @db.VarChar(255)
-  password            String    @db.VarChar(255)
-  image               String?   @db.VarChar(255)
-  role                String    @default("WAITER") // OWNER, ADMINISTRATOR, MANAGER, WAITER
-  isActive            Boolean   @default(true)
-  branchId            String?   @db.Uuid
-  branch              Branch?   @relation(fields: [branchId], references: [id])
-  emailVerified       Boolean   @default(false)
-  verificationCode    String?   @db.VarChar(6)
-  verificationExpires DateTime? @db.Timestamptz(6)
-  createdAt           DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt           DateTime  @updatedAt @db.Timestamptz(6)
-  contacts            Contact[]
-  deals               Deal[]
-  reservations        Reservation[]
-  managedReviews      Review[]
-  userRoles           UserRole[]
+  id             String        @id(map: "PK_Users") @map("Id") @db.Uuid
+  name           String?       @map("Name") @db.VarChar(100)
+  email          String        @unique @map("Email") @db.VarChar(255)
+  password       String        @map("Password") @db.VarChar(255)
+  image          String?       @map("Image") @db.VarChar(255)
+  role           String        @map("Role") @db.VarChar(20)
+  isActive       Boolean       @map("IsActive")
+  branchId       String?       @map("BranchId") @db.Uuid
+  emailVerified  Boolean       @map("EmailVerified")
+  createdAt      DateTime      @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt      DateTime      @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
+  contacts       Contact[]
+  deals          Deal[]
+  reservations   Reservation[]
+  managedReviews Review[]
+  userRoles      UserRole[]
+  branch         Branch?       @relation(fields: [branchId], references: [id], onUpdate: NoAction, map: "FK_Users_Branches_BranchId")
 
+  @@index([branchId], map: "IX_Users_BranchId")
   @@map("Users")
 }
 
 model Role {
-  id          String           @id @default(uuid()) @db.Uuid
-  name        RoleName         @unique
-  description String?          @db.VarChar(255)
-  createdAt   DateTime         @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime         @updatedAt @db.Timestamptz(6)
-  userRoles   UserRole[]
+  id          String           @id(map: "PK_Roles") @map("Id") @db.Uuid
+  name        String           @unique(map: "IX_Roles_Name") @map("Name")
+  description String?          @map("Description") @db.VarChar(255)
+  createdAt   DateTime         @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt   DateTime         @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
   permissions RolePermission[]
+  userRoles   UserRole[]
 
   @@map("Roles")
 }
 
 model Permission {
-  id          String           @id @default(uuid()) @db.Uuid
-  name        PermissionName   @unique
-  description String?          @db.VarChar(255)
-  createdAt   DateTime         @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime         @updatedAt @db.Timestamptz(6)
+  id          String           @id(map: "PK_Permissions") @map("Id") @db.Uuid
+  name        String           @unique(map: "IX_Permissions_Name") @map("Name")
+  description String?          @map("Description") @db.VarChar(255)
+  createdAt   DateTime         @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt   DateTime         @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
   roles       RolePermission[]
 
   @@map("Permissions")
 }
 
 model UserRole {
-  userId    String   @db.Uuid
-  roleId    String   @db.Uuid
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  userId    String   @map("UserId") @db.Uuid
+  roleId    String   @map("RoleId") @db.Uuid
+  CreatedAt DateTime @db.Timestamptz(6)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_UserRoles_Roles_RoleId")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_UserRoles_Users_UserId")
 
-  @@id([userId, roleId])
+  @@id([userId, roleId], map: "PK_UserRoles")
+  @@index([roleId], map: "IX_UserRoles_RoleId")
   @@map("UserRoles")
 }
 
 model RolePermission {
-  roleId       String     @db.Uuid
-  permissionId String     @db.Uuid
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  roleId       String     @map("RoleId") @db.Uuid
+  permissionId String     @map("PermissionId") @db.Uuid
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_RolePermissions_Permissions_PermissionId")
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_RolePermissions_Roles_RoleId")
 
-  @@id([roleId, permissionId])
+  @@id([roleId, permissionId], map: "PK_RolePermissions")
+  @@index([permissionId], map: "IX_RolePermissions_PermissionId")
   @@map("RolePermissions")
 }
 
-enum RoleName {
-  OWNER
-  ADMINISTRATOR
-  MANAGER
-  WAITER
-}
-
-enum PermissionName {
-  USERS_READ
-  USERS_INVITE
-  USERS_EDIT
-  USERS_CHANGE_ROLE
-  USERS_CHANGE_STATUS
-}
-
 model Branch {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String   @db.VarChar(100)
-  address   String?  @db.VarChar(255)
-  users     User[]
+  id        String   @id(map: "PK_Branches") @map("Id") @db.Uuid
+  name      String   @map("Name") @db.VarChar(100)
+  address   String?  @map("Address") @db.VarChar(255)
+  createdAt DateTime @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
   tables    Table[]
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  users     User[]
 
   @@map("Branches")
 }
 
 model Contact {
-  id             String        @id(map: "PK_Contacts") @default(uuid()) @map("Id") @db.Uuid
-  firstName      String        @map("FirstName") @db.VarChar(100)
-  lastName       String        @map("LastName") @db.VarChar(100)
-  email          String        @map("Email") @db.VarChar(255)
-  phone          String?       @map("Phone") @db.VarChar(20)
-  company        String?       @map("Company") @db.VarChar(100)
-  birthday       DateTime?     @map("Birthday") @db.Date
-  gender         String?       @map("Gender") @db.VarChar(10)
-  address        String?       @map("Address") @db.VarChar(255)
-  status         String        @default("Lead") @map("Status")
-  bonusBalance   Decimal       @default(0) @map("BonusBalance") @db.Decimal(18, 2)
-  loyaltyLevel   String        @default("Bronze") @map("LoyaltyLevel") // Bronze, Silver, Gold, Platinum
-  totalSpent     Decimal       @default(0) @map("TotalSpent") @db.Decimal(18, 2)
-  createdAt      DateTime      @default(now()) @map("CreatedAt") @db.Timestamptz(6)
-  updatedAt      DateTime      @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
-  userId         String?       @db.Uuid
-  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-  deals          Deal[]
-  reservations   Reservation[]
-  reviews        Review[]
+  id           String        @id(map: "PK_Contacts") @default(uuid()) @map("Id") @db.Uuid
+  firstName    String        @map("FirstName") @db.VarChar(100)
+  lastName     String        @map("LastName") @db.VarChar(100)
+  email        String        @map("Email") @db.VarChar(255)
+  phone        String?       @map("Phone") @db.VarChar(20)
+  company      String?       @map("Company") @db.VarChar(100)
+  status       String        @map("Status")
+  createdAt    DateTime      @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt    DateTime      @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
+  address      String?       @map("Address") @db.VarChar(255)
+  birthday     DateTime?     @map("Birthday") @db.Timestamptz(6)
+  bonusBalance Decimal       @default(0.0) @map("BonusBalance") @db.Decimal
+  gender       String?       @map("Gender") @db.VarChar(10)
+  loyaltyLevel String        @default("") @map("LoyaltyLevel") @db.VarChar(20)
+  totalSpent   Decimal       @default(0.0) @map("TotalSpent") @db.Decimal
+  userId       String?       @map("UserId") @db.Uuid
+  user         User?         @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Contacts_Users_UserId")
+  deals        Deal[]
+  reservations Reservation[]
+  reviews      Review[]
 
+  @@index([userId], map: "IX_Contacts_UserId")
   @@map("Contacts")
 }
 
 model Reservation {
-  id            String   @id @default(uuid()) @db.Uuid
-  contactId     String   @db.Uuid
-  contact       Contact  @relation(fields: [contactId], references: [id])
-  tableId       String?  @db.Uuid
-  table         Table?   @relation(fields: [tableId], references: [id])
-  userId        String?  @db.Uuid
-  user          User?    @relation(fields: [userId], references: [id])
-  guestCount    Int
-  startTime     DateTime @db.Timestamptz(6)
-  endTime       DateTime @db.Timestamptz(6)
-  status        String   @default("Pending") // Pending, Confirmed, Seated, Cancelled, Completed
-  notes         String?  @db.Text
-  createdAt     DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+  id           String   @id(map: "PK_Reservations") @map("Id") @db.Uuid
+  contactId    String?  @map("ContactId") @db.Uuid
+  customerName String?  @map("CustomerName") @db.VarChar(100)
+  phone        String?  @map("Phone") @db.VarChar(20)
+  tableId      String?  @map("TableId") @db.Uuid
+  userId       String?  @map("UserId") @db.Uuid
+  guestCount   Int      @map("GuestCount")
+  startTime    DateTime @map("StartTime") @db.Timestamptz(6)
+  endTime      DateTime @map("EndTime") @db.Timestamptz(6)
+  status       String   @map("Status") @db.VarChar(20)
+  notes        String?  @map("Notes")
+  createdAt    DateTime @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
+  contact      Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Reservations_Contacts_ContactId")
+  table        Table?   @relation(fields: [tableId], references: [id], onUpdate: NoAction, map: "FK_Reservations_Tables_TableId")
+  user         User?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Reservations_Users_UserId")
 
+  @@index([contactId], map: "IX_Reservations_ContactId")
+  @@index([tableId], map: "IX_Reservations_TableId")
+  @@index([userId], map: "IX_Reservations_UserId")
   @@map("Reservations")
 }
 
 model Table {
-  id           String        @id @default(uuid()) @db.Uuid
-  number       String        @db.VarChar(10)
-  capacity     Int
-  branchId     String        @db.Uuid
-  branch       Branch        @relation(fields: [branchId], references: [id])
+  id           String        @id(map: "PK_Tables") @map("Id") @db.Uuid
+  number       String        @map("Number") @db.VarChar(10)
+  capacity     Int           @map("Capacity")
+  status       String        @map("Status") @db.VarChar(20)
+  branchId     String        @map("BranchId") @db.Uuid
+  createdAt    DateTime      @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt    DateTime      @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
+  orders       Order[]
   reservations Reservation[]
-  createdAt    DateTime      @default(now()) @db.Timestamptz(6)
-  updatedAt    DateTime      @updatedAt @db.Timestamptz(6)
+  branch       Branch        @relation(fields: [branchId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Tables_Branches_BranchId")
 
+  @@index([branchId], map: "IX_Tables_BranchId")
   @@map("Tables")
 }
 
 model Review {
-  id           String   @id @default(uuid()) @db.Uuid
-  contactId    String   @db.Uuid
-  contact      Contact  @relation(fields: [contactId], references: [id])
-  rating       Int      @db.SmallInt
-  comment      String?  @db.Text
-  response     String?  @db.Text
-  responderId  String?  @db.Uuid
-  responder    User?    @relation(fields: [responderId], references: [id])
-  createdAt    DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt    DateTime @updatedAt @db.Timestamptz(6)
+  id          String   @id(map: "PK_Reviews") @map("Id") @db.Uuid
+  contactId   String   @map("ContactId") @db.Uuid
+  rating      Int      @map("Rating")
+  comment     String?  @map("Comment")
+  response    String?  @map("Response")
+  responderId String?  @map("ResponderId") @db.Uuid
+  createdAt   DateTime @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
+  contact     Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Reviews_Contacts_ContactId")
+  responder   User?    @relation(fields: [responderId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Reviews_Users_ResponderId")
 
+  @@index([contactId], map: "IX_Reviews_ContactId")
+  @@index([responderId], map: "IX_Reviews_ResponderId")
   @@map("Reviews")
 }
 
 model Category {
-  id        String     @id @default(uuid()) @db.Uuid
-  name      String     @db.VarChar(100)
+  id        String     @id(map: "PK_Categories") @map("Id") @db.Uuid
+  name      String     @map("Name") @db.VarChar(100)
+  createdAt DateTime   @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt DateTime   @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
   items     MenuItem[]
-  createdAt DateTime   @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime   @updatedAt @db.Timestamptz(6)
 
   @@map("Categories")
 }
 
 model MenuItem {
-  id          String   @id @default(uuid()) @db.Uuid
-  name        String   @db.VarChar(100)
-  description String?  @db.Text
-  price       Decimal  @db.Decimal(18, 2)
-  categoryId  String   @db.Uuid
-  category    Category @relation(fields: [categoryId], references: [id])
-  isAvailable Boolean  @default(true)
-  createdAt   DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+  id          String      @id(map: "PK_MenuItems") @map("Id") @db.Uuid
+  name        String      @map("Name") @db.VarChar(100)
+  description String?     @map("Description")
+  price       Decimal     @map("Price") @db.Decimal(18, 2)
+  categoryId  String      @map("CategoryId") @db.Uuid
+  isAvailable Boolean     @map("IsAvailable")
+  createdAt   DateTime    @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt   DateTime    @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_MenuItems_Categories_CategoryId")
+  orderItems  OrderItem[]
 
+  @@index([categoryId], map: "IX_MenuItems_CategoryId")
   @@map("MenuItems")
 }
 
 model Pipeline {
-  id          String   @id @default(uuid()) @db.Uuid
-  name        String   @db.VarChar(100)
-  stages      Stage[]
-  createdAt   DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+  id     String  @id(map: "PK_Pipelines") @map("Id") @db.Uuid
+  name   String  @map("Name") @db.VarChar(100)
+  stages Stage[]
 
   @@map("Pipelines")
 }
 
 model Stage {
-  id         String   @id @default(uuid()) @db.Uuid
-  name       String   @db.VarChar(100)
-  order      Int
-  pipelineId String   @db.Uuid
-  pipeline   Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  id         String   @id(map: "PK_Stages") @map("Id") @db.Uuid
+  name       String   @map("Name") @db.VarChar(100)
+  order      Int      @map("Order")
+  pipelineId String   @map("PipelineId") @db.Uuid
   deals      Deal[]
-  createdAt  DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt  DateTime @updatedAt @db.Timestamptz(6)
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Stages_Pipelines_PipelineId")
 
+  @@index([pipelineId], map: "IX_Stages_PipelineId")
   @@map("Stages")
 }
 
 model Deal {
-  id          String   @id @default(uuid()) @db.Uuid
-  title       String   @db.VarChar(255)
-  description String?  @db.Text
-  value       Float
-  stageId     String?  @db.Uuid
-  stage       Stage?   @relation(fields: [stageId], references: [id])
-  createdAt   DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
-  userId      String   @db.Uuid
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contactId   String?  @db.Uuid
-  contact     Contact? @relation(fields: [contactId], references: [id])
+  id          String   @id(map: "PK_Deals") @map("Id") @db.Uuid
+  title       String   @map("Title") @db.VarChar(200)
+  description String?  @map("Description")
+  value       Decimal  @map("Value") @db.Decimal
+  contactId   String   @map("ContactId") @db.Uuid
+  stageId     String   @map("StageId") @db.Uuid
+  createdAt   DateTime @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
+  userId      String?  @map("UserId") @db.Uuid
+  contact     Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Deals_Contacts_ContactId")
+  stage       Stage    @relation(fields: [stageId], references: [id], onUpdate: NoAction, map: "FK_Deals_Stages_StageId")
+  user        User?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Deals_Users_UserId")
 
+  @@index([contactId], map: "IX_Deals_ContactId")
+  @@index([stageId], map: "IX_Deals_StageId")
+  @@index([userId], map: "IX_Deals_UserId")
   @@map("Deals")
+}
+
+model Order {
+  id           String      @id(map: "PK_Orders") @map("Id") @db.Uuid
+  customerName String      @map("CustomerName") @db.VarChar(100)
+  phone        String      @map("Phone") @db.VarChar(20)
+  comment      String?     @map("Comment")
+  status       String      @map("Status") @db.VarChar(20)
+  totalPrice   Decimal     @map("TotalPrice") @db.Decimal(18, 2)
+  tableId      String?     @map("TableId") @db.Uuid
+  createdAt    DateTime    @map("CreatedAt") @db.Timestamptz(6)
+  updatedAt    DateTime    @updatedAt @map("UpdatedAt") @db.Timestamptz(6)
+  items        OrderItem[]
+  table        Table?      @relation(fields: [tableId], references: [id], onUpdate: NoAction, map: "FK_Orders_Tables_TableId")
+
+  @@index([tableId], map: "IX_Orders_TableId")
+  @@map("Orders")
+}
+
+model OrderItem {
+  id         String   @id(map: "PK_OrderItems") @map("Id") @db.Uuid
+  orderId    String   @map("OrderId") @db.Uuid
+  menuItemId String   @map("MenuItemId") @db.Uuid
+  quantity   Int      @map("Quantity")
+  price      Decimal  @map("Price") @db.Decimal(18, 2)
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onUpdate: NoAction, map: "FK_OrderItems_MenuItems_MenuItemId")
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_OrderItems_Orders_OrderId")
+
+  @@index([menuItemId], map: "IX_OrderItems_MenuItemId")
+  @@index([orderId], map: "IX_OrderItems_OrderId")
+  @@map("OrderItems")
 }
 
 model EFMigrationsHistory {
